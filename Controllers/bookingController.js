@@ -9,6 +9,8 @@ export const getCheckoutSession = async (req, res) => {
     const doctor = await Doctor.findById(req.params.doctorId)
     const user = await User.findById(req.userId)
 
+    const { date, time } = req.body
+
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
     // create stripe checkout session
@@ -40,7 +42,9 @@ export const getCheckoutSession = async (req, res) => {
       doctor: doctor._id,
       user: user._id,
       ticketPrice: doctor.ticketPrice,
-      session: session.id
+      session: session.id,
+      date,
+      time,
     })
 
     await booking.save()
