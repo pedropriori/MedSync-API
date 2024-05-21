@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import User from "./UserSchema.js";
+import Doctor from "./DoctorSchema.js";
 
 const bookingSchema = new mongoose.Schema(
   {
@@ -26,19 +28,41 @@ const bookingSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    date: { type: String },
-    time: { type: String }
+    date: { type: Date, required: true },
+    time: { type: String, required: true },
   },
   { timestamps: true }
 );
 
-bookingSchema.pre(/^find/, function (next) {
-  this.populate('user').populate({
-    path: 'doctor',
-    select: 'name'
-  })
+// bookingSchema.pre(/^find/, function (next) {
+//   this.populate('user').populate({
+//     path: 'doctor',
+//     select: 'name'
+//   })
 
-  next()
-})
+//   next()
+// })
+
+bookingSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'user',
+    select: 'name'
+  }).populate({
+    path: 'doctor',
+    select: 'name photo specialization'
+  });
+
+  next();
+});
+
+bookingSchema.post('save', async function (doc, next) {
+  try {
+    await User.findByIdAndUpdate(doc.user, { $push: { appointments: doc._id } });
+    await Doctor.findByIdAndUpdate(doc.doctor, { $push: { appointments: doc._id } });
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 export default mongoose.model("Booking", bookingSchema);

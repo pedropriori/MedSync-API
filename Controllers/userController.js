@@ -20,11 +20,11 @@ export const updateUser = async (req, res) => {
         data: updatedUser
       })
   } catch (err) {
-    res.status(500).json({success:false, message: 'Failed to updated'})
+    res.status(500).json({ success: false, message: 'Failed to updated' })
   }
 }
 
-export const deleteUser = async(req, res) => {
+export const deleteUser = async (req, res) => {
   const id = req.params.id
 
   try {
@@ -35,11 +35,11 @@ export const deleteUser = async(req, res) => {
     res
       .status(200)
       .json({
-        success:true,
+        success: true,
         message: 'Successfully deleted',
       })
   } catch (err) {
-    res.status(500).json({success:false, message: 'Failed to delete'})
+    res.status(500).json({ success: false, message: 'Failed to delete' })
   }
 }
 
@@ -55,7 +55,7 @@ export const getSingleUser = async (req, res) => {
       data: user,
     })
   } catch (err) {
-    
+
   }
 }
 
@@ -67,12 +67,12 @@ export const getAllUser = async (req, res) => {
     res
       .status(200)
       .json({
-        success:true,
+        success: true,
         message: 'Users found',
-        data:users
+        data: users
       })
   } catch (err) {
-    res.status(404).json({success:false, message: 'Not found'})
+    res.status(404).json({ success: false, message: 'Not found' })
   }
 }
 
@@ -82,42 +82,74 @@ export const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(userId)
 
-    if(!user) {
+    if (!user) {
       return res
         .status(404)
         .json({ success: false, message: 'User not found' })
     }
 
-    const {  password, ...rest } = user._doc
+    const { password, ...rest } = user._doc
 
     res
       .status(200)
-      .json({ success: true, message: 'Profile info is getting', data: {...rest} })
+      .json({ success: true, message: 'Profile info is getting', data: { ...rest } })
   } catch (err) {
-      res.status(500)
-        .json({ 
-          success: false,
-          message: 'Something went wrong, cannot get' 
-        })
+    res.status(500)
+      .json({
+        success: false,
+        message: 'Something went wrong, cannot get'
+      })
   }
 }
+
+// export const getMyAppointments = async (req, res) => {
+//   try {
+//     // step 1 - retrieve appointments from booking for specific user
+//     const bookings = await Booking.find({ user: req.userId })
+
+//     // step 2 - extract doctor ids from appointment booking
+//     const doctorIds = bookings.map(el => el.doctor.id)
+
+//     // step 3 - retrieve professionals/doctors using doctor ids
+//     const doctors = await Doctor.find({ _id: { $in: doctorIds } }).select('-password')
+
+//     res.status(200).json({ success: true, message: 'Appointments are getting', data: doctors })
+
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ success: false, message: 'Something went wrong, cannot get' })
+//   }
+// }
 
 export const getMyAppointments = async (req, res) => {
   try {
-    // step 1 - retrieve appointments from booking for specific user
-    const bookings = await Booking.find({ user:req.userId })
 
-    // step 2 - extract doctor ids from appointment booking
-    const doctorIds = bookings.map(el => el.doctor.id)
+    // Passo 1 - Recuperar agendamentos para o usuário específico
+    const bookings = await Booking.find({ user: req.userId })
+      .populate({
+        path: "doctor",
+        select: "name photo specialization",
+      })
+      .select("doctor ticketPrice date time status isPaid");
 
-    // step 3 - retrieve professionals/doctors using doctor ids
-    const doctors = await Doctor.find({ _id: {$in:doctorIds} }).select('-password')
+    // Verifique se há agendamentos
+    if (!bookings) {
+      throw new Error("No bookings found for this user");
+    }
 
-    res.status(200).json({ success: true, message: 'Appointments are getting', data:doctors })
+    res.status(200).json({
+      success: true,
+      message: 'Appointments retrieved successfully',
+      data: bookings
+    });
 
   } catch (err) {
-    res
-      .status(500)
-      .json({ success: false, message: 'Something went wrong, cannot get' })
+    console.error('Error fetching appointments:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Something went wrong, cannot get appointments',
+      error: err.message,  // Inclui a mensagem de erro na resposta
+    });
   }
-}
+};
