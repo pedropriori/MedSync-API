@@ -7,6 +7,15 @@ const DoctorSchema = new mongoose.Schema({
   phone: { type: Number },
   photo: { type: String },
   ticketPrice: { type: Number },
+  address: {
+    cep: { type: String, required: true },
+    logradouro: { type: String, required: true },
+    numero: { type: String, required: true },
+    complemento: { type: String },
+    bairro: { type: String, required: true },
+    cidade: { type: String, required: true },
+    estado: { type: String, required: true },
+  },
   role: {
     type: String,
   },
