@@ -49,7 +49,7 @@ bookingSchema.pre(/^find/, function (next) {
     select: 'name photo email gender'
   }).populate({
     path: 'doctor',
-    select: 'name photo specialization'
+    select: 'name photo specialization address'
   });
 
   next();
