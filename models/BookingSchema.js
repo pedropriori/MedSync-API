@@ -30,6 +30,7 @@ const bookingSchema = new mongoose.Schema(
     },
     date: { type: Date, required: true },
     time: { type: String, required: true },
+    isTelemedicine: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

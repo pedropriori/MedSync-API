@@ -8,7 +8,11 @@ export const getCheckoutSession = async (req, res) => {
     const doctor = await Doctor.findById(req.params.doctorId)
     const user = await User.findById(req.userId)
 
-    const { date, time } = req.body
+    const { date, time, isTelemedicine } = req.body
+
+    if (isTelemedicine && !doctor.isAvailableForTelemedicine) {
+      return res.status(400).json({ success: false, message: 'Doctor does not allow telemedicine appointments' });
+    }
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -42,6 +46,7 @@ export const getCheckoutSession = async (req, res) => {
       session: session.id,
       date,
       time,
+      isTelemedicine
     })
 
     await booking.save()

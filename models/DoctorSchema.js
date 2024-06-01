@@ -7,6 +7,7 @@ const DoctorSchema = new mongoose.Schema({
   phone: { type: Number },
   photo: { type: String },
   ticketPrice: { type: Number },
+  isAvailableForTelemedicine: { type: Boolean, default: false },
   address: {
     cep: { type: String, required: true },
     logradouro: { type: String, required: true },

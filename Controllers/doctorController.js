@@ -11,6 +11,10 @@ export const updateDoctor = async (req, res) => {
       { new: true }
     )
 
+    if (!updatedDoctor) {
+      return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+
     res
       .status(200)
       .json({
@@ -19,11 +23,11 @@ export const updateDoctor = async (req, res) => {
         data: updatedDoctor
       })
   } catch (err) {
-    res.status(500).json({success:false, message: 'Failed to updated'})
+    res.status(500).json({ success: false, message: 'Failed to updated' })
   }
 }
 
-export const deleteDoctor = async(req, res) => {
+export const deleteDoctor = async (req, res) => {
   const id = req.params.id
 
   try {
@@ -34,11 +38,11 @@ export const deleteDoctor = async(req, res) => {
     res
       .status(200)
       .json({
-        success:true,
+        success: true,
         message: 'Successfully deleted',
       })
   } catch (err) {
-    res.status(500).json({success:false, message: 'Failed to delete'})
+    res.status(500).json({ success: false, message: 'Failed to delete' })
   }
 }
 
@@ -56,7 +60,7 @@ export const getSingleDoctor = async (req, res) => {
       data: doctor,
     })
   } catch (err) {
-    
+
   }
 }
 
@@ -67,25 +71,25 @@ export const getAllDoctor = async (req, res) => {
 
     if (query) {
       doctors = await Doctor.find({
-        isApproved:'approved',
-        $or:[
+        isApproved: 'approved',
+        $or: [
           { name: { $regex: query, $options: 'i' } },
           { specialization: { $regex: query, $options: 'i' } },
         ],
       }).select('-password')
     } else {
-      doctors = await Doctor.find({ isApproved:'approved' }).select('-password')
+      doctors = await Doctor.find({ isApproved: 'approved' }).select('-password')
     }
 
     res
       .status(200)
       .json({
-        success:true,
+        success: true,
         message: 'Doctors found',
-        data:doctors
+        data: doctors
       })
   } catch (err) {
-    res.status(404).json({success:false, message: 'Not found'})
+    res.status(404).json({ success: false, message: 'Not found' })
   }
 }
 
@@ -95,23 +99,23 @@ export const getDoctorProfile = async (req, res) => {
   try {
     const doctor = await Doctor.findById(doctorId)
 
-    if(!doctor) {
+    if (!doctor) {
       return res
         .status(404)
         .json({ success: false, message: 'Doctor not found' })
     }
 
-    const {  password, ...rest } = doctor._doc
-    const appointments = await BookingSchema.find({ doctor:doctorId })
+    const { password, ...rest } = doctor._doc
+    const appointments = await BookingSchema.find({ doctor: doctorId })
 
-    res.status(200).json({ 
+    res.status(200).json({
       success: true,
       message: 'Profile info is getting',
       data: { ...rest, appointments }
     })
   } catch (err) {
-      res
-        .status(500)
-        .json({ success: false, message: 'Something went wrong, cannot get' })
+    res
+      .status(500)
+      .json({ success: false, message: 'Something went wrong, cannot get' })
   }
 }
