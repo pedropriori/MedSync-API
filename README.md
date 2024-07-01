@@ -27,7 +27,7 @@ A variável `ZOOM_REDIRECT_URI` deve ser configurada também nas configurações
 1. Clone o repositório do backend:
 
    ```sh
-   git clone https://github.com/seu-usuario/medsync-backend.git
+   git clone https://github.com/pedropriori/MedSync-API.git
    ```
 
 2. Instale as dependências:
