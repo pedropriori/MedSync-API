@@ -1,5 +1,10 @@
 import mongoose from "mongoose";
 
+const AvailableTimeSlotSchema = new mongoose.Schema({
+  date: { type: Date, required: true },
+  timeSlots: [String],
+});
+
 const DoctorSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
@@ -20,20 +25,17 @@ const DoctorSchema = new mongoose.Schema({
   role: {
     type: String,
   },
-
-  // Fields for doctors only
   specialization: { type: String },
   qualifications: {
     type: Array,
   },
-
   experiences: {
     type: Array,
   },
-
-  bio: { type: String, maxLength: 50 },
+  weekDayTimeSlots: { type: Array },
+  bio: { type: String },
   about: { type: String },
-  timeSlots: { type: Array },
+  availableTimeSlots: [AvailableTimeSlotSchema],
   reviews: [{ type: mongoose.Types.ObjectId, ref: "Review" }],
   averageRating: {
     type: Number,

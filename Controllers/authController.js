@@ -24,12 +24,10 @@ export const register = async (req, res) => {
       user = await Doctor.findOne({ email })
     }
 
-    // check if user exist
     if (user) {
       return res.status(400).json({ message: 'User already exist' })
     }
 
-    //hash password
     const salt = await bcrypt.genSalt(10)
     const hashPassword = await bcrypt.hash(password, salt)
 
@@ -88,14 +86,12 @@ export const login = async (req, res) => {
       user = doctor
     }
 
-    // check if user exist or not
     if (!user) {
       return res
         .status(404)
         .json({ message: "User not found" })
     }
 
-    // compare password
     const isPasswordMatch = await bcrypt.compare(req.body.password, user.password)
 
     if (!isPasswordMatch) {
@@ -104,9 +100,7 @@ export const login = async (req, res) => {
         .json({ status: false, message: "Invalid credentials" })
     }
 
-    // get token
     const token = generateToken(user)
-
 
     const { password, role, appointments, ...rest } = user._doc
 

@@ -15,13 +15,9 @@ const bookingSchema = new mongoose.Schema(
       required: true,
     },
     ticketPrice: { type: String, required: true },
-    // appointmentDate: {
-    //   type: Date,
-    //   required: true,
-    // },
     status: {
       type: String,
-      enum: ["pending", "approved", "cancelled"],
+      enum: ["pending", "approved", "completed", "cancelled"],
       default: "pending",
     },
     isPaid: {
@@ -31,35 +27,33 @@ const bookingSchema = new mongoose.Schema(
     date: { type: Date, required: true },
     time: { type: String, required: true },
     isTelemedicine: { type: Boolean, default: false },
+    meetingLink: String,
+    startMeetingLink: String,
+    createdAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
 
-// bookingSchema.pre(/^find/, function (next) {
-//   this.populate('user').populate({
-//     path: 'doctor',
-//     select: 'name'
-//   })
-
-//   next()
-// })
-
 bookingSchema.pre(/^find/, function (next) {
   this.populate({
-    path: 'user',
-    select: 'name photo email gender'
+    path: "user",
+    select: "name photo email gender",
   }).populate({
-    path: 'doctor',
-    select: 'name photo specialization address'
+    path: "doctor",
+    select: "name photo specialization address",
   });
 
   next();
 });
 
-bookingSchema.post('save', async function (doc, next) {
+bookingSchema.post("save", async function (doc, next) {
   try {
-    await User.findByIdAndUpdate(doc.user, { $push: { appointments: doc._id } });
-    await Doctor.findByIdAndUpdate(doc.doctor, { $push: { appointments: doc._id } });
+    await User.findByIdAndUpdate(doc.user, {
+      $push: { appointments: doc._id },
+    });
+    await Doctor.findByIdAndUpdate(doc.doctor, {
+      $push: { appointments: doc._id },
+    });
     next();
   } catch (err) {
     next(err);

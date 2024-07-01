@@ -117,7 +117,7 @@ export const getMyAppointments = async (req, res) => {
         path: 'doctor',
         select: 'name photo specialization address',
       })
-      .select('doctor ticketPrice date time isTelemedicine status isPaid');
+      .select('doctor ticketPrice date time isTelemedicine meetingLink startMeetingLink status isPaid');
 
     if (!bookings || bookings.length === 0) {
       throw new Error('No bookings found for this user');
