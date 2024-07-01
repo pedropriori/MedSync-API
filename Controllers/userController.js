@@ -1,11 +1,19 @@
 import User from "../models/UserSchema.js";
 import Booking from "../models/BookingSchema.js"
 import Doctor from "../models/DoctorSchema.js"
+import bcrypt from 'bcryptjs'
 
 export const updateUser = async (req, res) => {
   const id = req.params.id
 
   try {
+    if (req.body.password) {
+
+      const salt = await bcrypt.genSalt(10)
+
+      req.body.password = await bcrypt.hash(req.body.password, salt)
+    }
+
     const updatedUser = await User.findByIdAndUpdate(
       id,
       { $set: req.body },
@@ -102,40 +110,17 @@ export const getUserProfile = async (req, res) => {
   }
 }
 
-// export const getMyAppointments = async (req, res) => {
-//   try {
-//     // step 1 - retrieve appointments from booking for specific user
-//     const bookings = await Booking.find({ user: req.userId })
-
-//     // step 2 - extract doctor ids from appointment booking
-//     const doctorIds = bookings.map(el => el.doctor.id)
-
-//     // step 3 - retrieve professionals/doctors using doctor ids
-//     const doctors = await Doctor.find({ _id: { $in: doctorIds } }).select('-password')
-
-//     res.status(200).json({ success: true, message: 'Appointments are getting', data: doctors })
-
-//   } catch (err) {
-//     res
-//       .status(500)
-//       .json({ success: false, message: 'Something went wrong, cannot get' })
-//   }
-// }
-
 export const getMyAppointments = async (req, res) => {
   try {
-
-    // Passo 1 - Recuperar agendamentos para o usuário específico
     const bookings = await Booking.find({ user: req.userId })
       .populate({
-        path: "doctor",
-        select: "name photo specialization",
+        path: 'doctor',
+        select: 'name photo specialization address',
       })
-      .select("doctor ticketPrice date time status isPaid");
+      .select('doctor ticketPrice date time isTelemedicine meetingLink startMeetingLink status isPaid');
 
-    // Verifique se há agendamentos
-    if (!bookings) {
-      throw new Error("No bookings found for this user");
+    if (!bookings || bookings.length === 0) {
+      throw new Error('No bookings found for this user');
     }
 
     res.status(200).json({
@@ -143,13 +128,12 @@ export const getMyAppointments = async (req, res) => {
       message: 'Appointments retrieved successfully',
       data: bookings
     });
-
   } catch (err) {
     console.error('Error fetching appointments:', err);
     res.status(500).json({
       success: false,
       message: 'Something went wrong, cannot get appointments',
-      error: err.message,  // Inclui a mensagem de erro na resposta
+      error: err.message,
     });
   }
 };

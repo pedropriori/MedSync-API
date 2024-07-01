@@ -11,6 +11,15 @@ const UserSchema = new mongoose.Schema({
     enum: ["patient", "admin", "doctor"],
     default: "patient",
   },
+  address: {
+    cep: { type: String, required: true },
+    logradouro: { type: String, required: true },
+    numero: { type: String, required: true },
+    complemento: { type: String },
+    bairro: { type: String, required: true },
+    cidade: { type: String, required: true },
+    estado: { type: String, required: true },
+  },
   gender: { type: String, enum: ["male", "female", "other"] },
   appointments: [{ type: mongoose.Types.ObjectId, ref: "Appointment" }],
 });
